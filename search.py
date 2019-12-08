@@ -56,12 +56,27 @@ def get_album(album_id):
     return albums
 
 
-ar1 = get_artist()
-alb1 = get_album_ids(ar1['id'])
-alb2 = get_album(alb1[0])
-print(alb1)
-print(ar1)
-print(alb2)
+def get_random_album():
+    artist = get_artist()
+    album_ids = get_album_ids(artist['id'])
+    n = len(album_ids)
+    if n > 1:
+        random_album = randint(0, n-1)
+        print(random_album)
+    else:
+        random_album = 0
+    album_info = get_album(album_ids[random_album])
+    return album_info
+
+
+album_arts = []
+album_names = []
+
+for i in range(0, 12):
+    album = get_random_album()
+    print(album)
+    album_arts.append(album['album_art'])
+    album_names.append(album['album_name'])
 
 
 filename = 'spotipy_results.html'
@@ -159,31 +174,6 @@ function onClick(element) {{
            album_arts[3], album_names[3], album_arts[4], album_names[4], album_arts[5], album_names[5],
            album_arts[6], album_names[6], album_arts[7], album_names[7], album_arts[8], album_names[8],
            album_arts[9], album_names[9], album_arts[10], album_names[10], album_arts[11], album_names[11])
-
-
-def add_album(artist, album_name, album_art, tracks, link):
-    album_string = """
-    <img src={}>
-    <h1>{}</h1
-    <h2><b>{}</b></h2>
-    """.format(album_art, artist, album_name)
-    f.write(album_string)
-    for i in tracks:
-        f.write('<li>'+i+'</li>')
-    f.write('<p><a href={}>Spotify link</a></p>'.format(link))
-
-
-def write_selection(n):
-    f.write(html_string)
-    u = 1
-    while u<n:
-        artist, album_name, album_art, tracks, link = get_artist_album_tracks(randint(1000, 10000))
-        add_album(artist, album_name, album_art, tracks, link)
-        u = u+1
-    f.write("""</body>
-    </html>
-    """)
-    f.close()
 
 f.write(html_string)
 f.close()
