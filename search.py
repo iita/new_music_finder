@@ -13,62 +13,56 @@ sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
 q = 'year:2011-2012'
 
 
-def get_artist_album_tracks(x):
-    artist = sp.search(q, limit=1, offset=x, type='artist', market=None)
-    album = sp.artist_albums(artist['artists']['items'][0]['id'], album_type='album')
-    tracks = sp.album_tracks(album['items'][0]['id'])
-    artist_name = artist['artists']['items'][0]['name']
-    album_name = album['items'][0]['name']
-    print(artist_name)
-    album_art_url = album['items'][0]['images'][0]['url']
-    album_spotify_link = album['items'][0]['external_urls']['spotify']
-    album_tracks = []
-    for track in tracks['items']:
-        album_tracks.append(track['name'])
-    return artist_name, album_name, album_art_url, album_tracks, album_spotify_link
-
-
 def get_artist():
-    artist = sp.search(q, limit=1, offset=randint(1000,10000), type='artist', market=None)
-    artist_name = artist['artists']['items'][0]['name']
-    artist_id = artist['artists']['items'][0]['id']
-    return artist_name, artist_id
+    artist_result = sp.search(q, limit=1, offset=randint(1000, 10000), type='artist', market=None)
+    artist = {
+        "name": artist_result['artists']['items'][0]['name'],
+        "id": artist_result['artists']['items'][0]['id'],
+        "genres": artist_result['artists']['items'][0]['genres'],
+        "popularity": artist_result['artists']['items'][0]['popularity']
+    }
+    return artist
 
 
-def get_albums(artist_id):
-    albums = {}
+def get_album_ids(artist_id):
     album_result = sp.artist_albums(artist_id, album_type='album')
+    album_ids = []
     for album in album_result['items']:
-        albums[album['name']] = {
-            "album_id": album['id'],
-            "album_art": album['images'][0]['url'],
-            "album_link": album['external_urls']['spotify']
+        album_ids.append(album['id'])
+    return album_ids
+
+
+def get_tracks(album_id):
+    tracks = []
+    tracks_result = sp.album_tracks(album_id)
+    for track in tracks_result['items']:
+        tracks.append(
+            track['name']
+            )
+    return tracks
+
+
+def get_album(album_id):
+    album_result = sp.album(album_id)
+    albums = {
+            "artist_name": album_result['artists'][0]['name'],
+            "album_name": album_result['name'],
+            "album_id": album_result['id'],
+            "album_art": album_result['images'][0]['url'],
+            "album_genres": album_result['genres'],
+            "album_link": album_result['external_urls']['spotify'],
+            "album_tracks": get_tracks(album_result['id'])
         }
     return albums
 
 
-def get_tracks(album_id):
-    tracks = {}
-    tracks_result = sp.album_tracks(album_id)
-    for track in tracks_result['items']:
-        tracks[track['track_number']] = {
-            "track_name": track['name'],
-            "track_url": track['external_urls']['spotify']
-        }
+ar1 = get_artist()
+alb1 = get_album_ids(ar1['id'])
+alb2 = get_album(alb1[0])
+print(alb1)
+print(ar1)
+print(alb2)
 
-
-def get_album_art_name():
-    album_arts = []
-    album_names = []
-    for i in range(0, 12):
-        artist, album_name, album_art, tracks, link = get_artist_album_tracks(randint(1000, 9999))
-        album_arts.append(album_art)
-        album_names.append(album_name)
-        print(album_name)
-    return album_arts, album_names
-
-
-album_arts, album_names = get_album_art_name()
 
 filename = 'spotipy_results.html'
 f = open(filename, 'w')
