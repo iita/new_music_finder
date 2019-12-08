@@ -7,13 +7,10 @@ import os
 
 client_credentials_manager = SpotifyClientCredentials()
 
-randint(1000, 2000)
-
 sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
-q = 'year:2011-2012'
 
 
-def get_artist():
+def get_artist(q):
     artist_result = sp.search(q, limit=1, offset=randint(1000, 10000), type='artist', market=None)
     artist = {
         "name": artist_result['artists']['items'][0]['name'],
@@ -57,27 +54,39 @@ def get_album(album_id):
 
 
 def get_random_album():
-    artist = get_artist()
+    year1, year2 = get_random_years()
+    q = 'year:{}-{}'.format(year1, year2)
+    artist = get_artist(q)
     album_ids = get_album_ids(artist['id'])
     n = len(album_ids)
     if n > 1:
         random_album = randint(0, n-1)
-        print(random_album)
+    elif n == 0:
+        return None
     else:
         random_album = 0
     album_info = get_album(album_ids[random_album])
     return album_info
 
 
+def get_random_years():
+    year1 = randint(1950, 2019)
+    year2 = year1+5
+    year1 = str(year1)
+    year2 = str(year2)
+    return year1, year2
+
+
 album_arts = []
 album_names = []
 
-for i in range(0, 12):
+while len(album_arts)<12:
     album = get_random_album()
-    print(album)
-    album_arts.append(album['album_art'])
-    album_names.append(album['album_name'])
-
+    if album is not None:
+        album_arts.append(album['album_art'])
+        album_names.append(album['album_name'])
+    else:
+        print('no albums')
 
 filename = 'spotipy_results.html'
 f = open(filename, 'w')
