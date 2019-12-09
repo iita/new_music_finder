@@ -80,7 +80,7 @@ def get_random_years(start=1950, end=2020):
 album_arts = []
 album_names = []
 
-while len(album_arts)<12:
+while len(album_arts) < 8:
     album = get_random_album()
     if album is not None:
         album_arts.append(album['album_art'])
@@ -92,97 +92,115 @@ filename = 'spotipy_results.html'
 f = open(filename, 'w')
 html_string = """
 <!DOCTYPE html>
-<html lang="en">
-<title>W3.CSS Template</title>
-<meta charset="UTF-8">
+<html>
+<head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
 <style>
-body,h1,h2,h3,h4,h5 {{font-family: "Raleway", sans-serif}}
+.container {{
+  position: relative;
+  width: 100%;
+}}
 
-.w3-quarter img{{margin-bottom: -6px; cursor: pointer}}
-.w3-quarter img:hover{{opacity: 0.6; transition: 0.3s}}
+.image {{
+  display: block;
+  width: 100%;
+  height: auto;
+}}
+
+.overlay {{
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  width: 100%;
+  opacity: 0;
+  transition: .2s ease;
+  background-color: #052d2e;
+}}
+
+.container:hover .overlay {{
+  opacity: 1;
+}}
+
+.text {{
+  color: white;
+  font-size: 18px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -webkit-transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+  text-align: center;
+}}
+
+.grid {{
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-gap: 5px;
+  align-items: stretch;
+  justify-items: center;
+  }}
 </style>
-<body class="w3-light-grey">
-
-<!-- Top menu on small screens -->
-<header class="w3-container w3-top w3-white w3-xlarge w3-padding-16">
-  <span class="w3-left w3-padding">EXPLORE</span>
-  <a href="javascript:void(0)" class="w3-right w3-button w3-white" onclick="w3_open()">☰</a>
-</header>
-
-<!-- !PAGE CONTENT! -->
-<div class="w3-main w3-content" style="max-width:1600px;margin-top:83px">
-  
-  <!-- Photo grid -->
-  <div class="w3-row w3-grayscale-min">
-    <div class="w3-quarter">
-    <img src={} style="width:100%" onclick="onClick(this)" alt="{}">
-    <img src={} style="width:100%" onclick="onClick(this)" alt="{}">
-    <img src={} style="width:100%" onclick="onClick(this)" alt="{}">
-  </div>
-    
-   <div class="w3-quarter">
-    <img src={} style="width:100%" onclick="onClick(this)" alt="{}">
-    <img src={} style="width:100%" onclick="onClick(this)" alt="{}">
-    <img src={} style="width:100%" onclick="onClick(this)" alt="{}">
-  </div>
-  
-  <div class="w3-quarter">
-    <img src={} style="width:100%" onclick="onClick(this)" alt="{}">
-    <img src={} style="width:100%" onclick="onClick(this)" alt="{}">
-    <img src={} style="width:100%" onclick="onClick(this)" alt="{}">
-  </div>
-
-  <div class="w3-quarter">
-    <img src={} style="width:100%" onclick="onClick(this)" alt="{}">
-    <img src={} style="width:100%" onclick="onClick(this)" alt="{}">
-    <img src={} style="width:100%" onclick="onClick(this)" alt="{}">
-  </div>
-</div>
-
-  <!-- Modal for full size images on click-->
-  <div id="modal01" class="w3-modal w3-black" style="padding-top:0" onclick="this.style.display='none'">
-    <span class="w3-button w3-black w3-xlarge w3-display-topright">×</span>
-    <div class="w3-modal-content w3-animate-zoom w3-center w3-transparent w3-padding-64">
-      <img id="img01" class="w3-image">
-      <p id="caption"></p>
+</head>
+<body bgcolor="052d2e">
+<main class="grid">
+    <div class="container">
+        <img src={} alt="test" class="image">
+        <div class="overlay">
+            <div class="text">{}</div>
+        </div>
     </div>
-  </div>
-
-<!-- End page content -->
+    <div class="container">
+        <img src={} alt="test" class="image">
+        <div class="overlay">
+            <div class="text">{}</div>
+        </div>
+    </div>
+    <div class="container">
+        <img src={} alt="test" class="image">
+        <div class="overlay">
+            <div class="text">{}</div>
+        </div>
+    </div>
+    <div class="container">
+        <img src={} alt="test" class="image">
+        <div class="overlay">
+            <div class="text">{}</div>
+        </div>
+    </div>
+    <div class="container">
+        <img src={} alt="test" class="image">
+        <div class="overlay">
+            <div class="text">{}</div>
+        </div>
+    </div>
+    <div class="container">
+        <img src={} alt="test" class="image">
+        <div class="overlay">
+            <div class="text">{}</div>
+        </div>
+    </div>
+    <div class="container">
+        <img src={} alt="test" class="image">
+        <div class="overlay">
+            <div class="text">{}</div>
+        </div>
+    </div>
+    <div class="container">
+        <img src={} alt="test" class="image">
+        <div class="overlay">
+            <div class="text">{}</div>
+        </div>
+    </div>
 </div>
-
-<script>
-// Script to open and close sidebar
-function w3_open() {{
-  document.getElementById("mySidebar").style.display = "block";
-  document.getElementById("myOverlay").style.display = "block";
-}}
-
-function w3_close() {{
-  document.getElementById("mySidebar").style.display = "none";
-  document.getElementById("myOverlay").style.display = "none";
-}}
-
-// Modal Image Gallery
-function onClick(element) {{
-  document.getElementById("img01").src = element.src;
-  document.getElementById("modal01").style.display = "block";
-  var captionText = document.getElementById("caption");
-  captionText.innerHTML = element.alt;
-}}
-
-</script>
-
-
 </body>
 </html>
 """.format(album_arts[0], album_names[0], album_arts[1], album_names[1], album_arts[2], album_names[2],
            album_arts[3], album_names[3], album_arts[4], album_names[4], album_arts[5], album_names[5],
-           album_arts[6], album_names[6], album_arts[7], album_names[7], album_arts[8], album_names[8],
-           album_arts[9], album_names[9], album_arts[10], album_names[10], album_arts[11], album_names[11])
+           album_arts[6], album_names[6], album_arts[7], album_names[7])
 
 f.write(html_string)
 f.close()
