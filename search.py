@@ -54,7 +54,7 @@ def get_album(album_id):
 
 
 def get_random_album():
-    year1, year2 = get_random_years()
+    year1, year2 = get_random_years(1980,2010)
     q = 'year:{}-{}'.format(year1, year2)
     artist = get_artist(q)
     album_ids = get_album_ids(artist['id'])
@@ -69,8 +69,8 @@ def get_random_album():
     return album_info
 
 
-def get_random_years():
-    year1 = randint(1950, 2019)
+def get_random_years(start=1950, end=2020):
+    year1 = randint(start, end)
     year2 = year1+5
     year1 = str(year1)
     year2 = str(year2)
