@@ -96,8 +96,8 @@ def get_website():
         else:
             print('no albums')
 
-    filename = 'spotipy_results.html'
-    f = open(filename, 'w')
+   # filename = 'spotipy_results.html'
+   # f = open(filename, 'w')
     html_string = """
     <!DOCTYPE html>
     <html>
@@ -291,20 +291,49 @@ def get_website():
                album_links[13], album_arts[13], artist_names[13], album_names[13],
                album_links[14], album_arts[14], artist_names[14], album_names[14])
 
-    f.write(html_string)
-    f.close()
+   # f.write(html_string)
+   # f.close()
+    return html_string
 
 
 get_website()
 
-#
-# app = Flask(__name__)
-#
-#
-# @app.route("/")
-# def index():
-#     get_website()
-#     return render_template("spotipy_results.html")
-#
-# if __name__ == "__main__":
-#     app.run(debug=True)
+
+app = Flask(__name__)
+
+@app.route("/")
+def index():
+    content = """
+            <!DOCTYPE html>
+        <html>
+           <head>
+              <title>Title of the document</title>
+              <style>
+                 .button {
+                 background-color: #1c87c9;
+                 border: none;
+                 color: white;
+                 padding: 20px 34px;
+                 text-align: center;
+                 text-decoration: none;
+                 display: inline-block;
+                 font-size: 20px;
+                 margin: 4px 2px;
+                 cursor: pointer;
+                 }
+              </style>
+           </head>
+           <body>
+              <a href="/results" class="button">Click Here</a>
+           </body>
+        </html>"""
+    return content
+
+
+@app.route("/results")
+def results():
+    content = get_website()
+    return content
+
+if __name__ == "__main__":
+    app.run(debug=True)
