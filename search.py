@@ -4,6 +4,8 @@ from spotipy.oauth2 import SpotifyClientCredentials
 from random import randint
 import webbrowser
 import os
+from flask import Flask, render_template
+
 
 client_credentials_manager = SpotifyClientCredentials()
 
@@ -78,217 +80,231 @@ def get_random_years(start=1950, end=2020):
     return year1, year2
 
 
-album_arts = []
-album_names = []
-artist_names = []
-album_dates = []
+def get_website():
+    album_arts = []
+    album_names = []
+    artist_names = []
+    album_links = []
 
-while len(album_arts) < 15:
-    album = get_random_album()
-    if album is not None:
-        album_arts.append(album['album_art'])
-        album_names.append(album['album_name'])
-        artist_names.append(album['artist_name'])
-        album_dates.append(album['release_date'])
-    else:
-        print('no albums')
+    while len(album_arts) < 15:
+        album = get_random_album()
+        if album is not None:
+            album_arts.append(album['album_art'])
+            album_names.append(album['album_name'])
+            artist_names.append(album['artist_name'])
+            album_links.append(album['album_link'])
+        else:
+            print('no albums')
 
-filename = 'spotipy_results.html'
-f = open(filename, 'w')
-html_string = """
-<!DOCTYPE html>
-<html>
-<head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<style>
-.container {{
-  position: relative;
-  width: 100%;
-}}
+    filename = 'spotipy_results.html'
+    f = open(filename, 'w')
+    html_string = """
+    <!DOCTYPE html>
+    <html>
+    <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+    .container {{
+      position: relative;
+      width: 100%;
+    }}
+    
+    .image {{
+      display: block;
+      width: 100%;
+      height: auto;
+    }}
+    
+    .overlay {{
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 100%;
+      width: 100%;
+      opacity: 0;
+      transition: .2s ease;
+      background-color: #000000;
+    }}
+    
+    .container:hover .overlay {{
+      opacity: 0.8;
+    }}
+    
+    .album_text {{
+      color: #d8dee3;
+      font-size: 18px;
+      position: absolute;
+      top: 60%;
+      left: 50%;
+      -webkit-transform: translate(-50%, -50%);
+      -ms-transform: translate(-50%, -50%);
+      transform: translate(-50%, -50%);
+      text-align: center;
+    }}
+    
+    .artist_text {{
+      color: #d8dee3;
+      font-size: 22px;
+      position: absolute;
+      top: 20%;
+      left: 50%;
+      -webkit-transform: translate(-50%, -50%);
+      -ms-transform: translate(-50%, -50%);
+      transform: translate(-50%, -50%);
+      text-align: center;
+    }}
+    
+    .grid {{
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+      grid-gap: 5px;
+      align-items: stretch;
+      justify-items: center;
+      }}
+    </style>
+    </head>
+    <body bgcolor="000000">
+    <main class="grid">
+        <a href="{}" class="container">
+            <img src={} alt="test" class="image">
+            <div class="overlay">
+                <div class="artist_text">{}</div>
+                <div class="album_text">{}</div>
+            </div>
+        </a>
+        <a href="{}" class="container">
+            <img src={} alt="test" class="image">
+            <div class="overlay">
+                <<div class="artist_text">{}</div>
+                <div class="album_text">{}</div>
+            </div>
+        </a>
+        <a href="{}" class="container">
+            <img src={} alt="test" class="image">
+            <div class="overlay">
+                <div class="artist_text">{}</div>
+                <div class="album_text">{}</div>
+            </div>
+        </a>
+        <a href="{}" class="container">
+            <img src={} alt="test" class="image">
+            <div class="overlay">
+                <div class="artist_text">{}</div>
+                <div class="album_text">{}</div>
+            </div>
+        </a>
+        <a href="{}" class="container">
+            <img src={} alt="test" class="image">
+            <div class="overlay">
+                <<div class="artist_text">{}</div>
+                <div class="album_text">{}</div>
+            </div>
+        </a>
+        <a href="{}" class="container">
+            <img src={} alt="test" class="image">
+            <div class="overlay">
+                <div class="artist_text">{}</div>
+                <div class="album_text">{}</div>
+            </div>
+        </a>
+        <a href="{}" class="container">
+            <img src={} alt="test" class="image">
+            <div class="overlay">
+                <div class="artist_text">{}</div>
+                <div class="album_text">{}</div>
+            </div>
+        </a>
+        <a href="{}" class="container">
+            <img src={} alt="test" class="image">
+            <div class="overlay">
+                <div class="artist_text">{}</div>
+                <div class="album_text">{}</div>
+            </div>
+        </a>
+        <a href="{}" class="container">
+            <img src={} alt="test" class="image">
+            <div class="overlay">
+                <div class="artist_text">{}</div>
+                <div class="album_text">{}</div>
+            </div>
+        </a>
+        <a href="{}" class="container">
+            <img src={} alt="test" class="image">
+            <div class="overlay">
+                <div class="artist_text">{}</div>
+                <div class="album_text">{}</div>
+            </div>
+        </a>
+        <a href="{}" class="container">
+            <img src={} alt="test" class="image">
+            <div class="overlay">
+                <div class="artist_text">{}</div>
+                <div class="album_text">{}</div>
+            </div>
+        </a>
+        <a href="{}" class="container">
+            <img src={} alt="test" class="image">
+            <div class="overlay">
+                <div class="artist_text">{}</div>
+                <div class="album_text">{}</div>
+            </div>
+        </a>
+        <a href="{}" class="container">
+            <img src={} alt="test" class="image">
+            <div class="overlay">
+                <div class="artist_text">{}</div>
+                <div class="album_text">{}</div>
+            </div>
+        </a>
+        <a href="{}" class="container">
+            <img src={} alt="test" class="image">
+            <div class="overlay">
+                <div class="artist_text">{}</div>
+                <div class="album_text">{}</div>
+            </div>
+        </a>
+        <a href="{}" class="container">
+            <img src={} alt="test" class="image">
+            <div class="overlay">
+                <div class="artist_text">{}</div>
+                <div class="album_text">{}</div>
+            </div>
+        </a>
+    </div>
+    </body>
+    </html>
+    """.format(album_links[0], album_arts[0], artist_names[0], album_names[0],
+               album_links[1], album_arts[1], artist_names[1], album_names[1],
+               album_links[2], album_arts[2], artist_names[2], album_names[2],
+               album_links[3], album_arts[3], artist_names[3], album_names[3],
+               album_links[4], album_arts[4], artist_names[4], album_names[4],
+               album_links[5], album_arts[5], artist_names[5], album_names[5],
+               album_links[6], album_arts[6], artist_names[6], album_names[6],
+               album_links[7], album_arts[7], artist_names[7], album_names[7],
+               album_links[8], album_arts[8], artist_names[8], album_names[8],
+               album_links[9], album_arts[9], artist_names[9], album_names[9],
+               album_links[10], album_arts[10], artist_names[10], album_names[10],
+               album_links[11], album_arts[11], artist_names[11], album_names[11],
+               album_links[12], album_arts[12], artist_names[12], album_names[12],
+               album_links[13], album_arts[13], artist_names[13], album_names[13],
+               album_links[14], album_arts[14], artist_names[14], album_names[14])
 
-.image {{
-  display: block;
-  width: 100%;
-  height: auto;
-}}
+    f.write(html_string)
+    f.close()
 
-.overlay {{
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 100%;
-  width: 100%;
-  opacity: 0;
-  transition: .2s ease;
-  background-color: #000000;
-}}
 
-.container:hover .overlay {{
-  opacity: 0.8;
-}}
+get_website()
 
-.album_text {{
-  color: #d8dee3;
-  font-size: 18px;
-  position: absolute;
-  top: 60%;
-  left: 50%;
-  -webkit-transform: translate(-50%, -50%);
-  -ms-transform: translate(-50%, -50%);
-  transform: translate(-50%, -50%);
-  text-align: center;
-}}
-
-.artist_text {{
-  color: #d8dee3;
-  font-size: 22px;
-  position: absolute;
-  top: 20%;
-  left: 50%;
-  -webkit-transform: translate(-50%, -50%);
-  -ms-transform: translate(-50%, -50%);
-  transform: translate(-50%, -50%);
-  text-align: center;
-}}
-
-.grid {{
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
-  grid-gap: 5px;
-  align-items: stretch;
-  justify-items: center;
-  }}
-</style>
-</head>
-<body bgcolor="000000">
-<main class="grid">
-    <div class="container">
-        <img src={} alt="test" class="image">
-        <div class="overlay">
-            <div class="artist_text">{}</div>
-            <div class="album_text">{}</div>
-        </div>
-    </div>
-    <div class="container">
-        <img src={} alt="test" class="image">
-        <div class="overlay">
-            <<div class="artist_text">{}</div>
-            <div class="album_text">{}</div>
-        </div>
-    </div>
-    <div class="container">
-        <img src={} alt="test" class="image">
-        <div class="overlay">
-            <div class="artist_text">{}</div>
-            <div class="album_text">{}</div>
-        </div>
-    </div>
-    <div class="container">
-        <img src={} alt="test" class="image">
-        <div class="overlay">
-            <div class="artist_text">{}</div>
-            <div class="album_text">{}</div>
-        </div>
-    </div>
-    <div class="container">
-        <img src={} alt="test" class="image">
-        <div class="overlay">
-            <<div class="artist_text">{}</div>
-            <div class="album_text">{}</div>
-        </div>
-    </div>
-    <div class="container">
-        <img src={} alt="test" class="image">
-        <div class="overlay">
-            <div class="artist_text">{}</div>
-            <div class="album_text">{}</div>
-        </div>
-    </div>
-    <div class="container">
-        <img src={} alt="test" class="image">
-        <div class="overlay">
-            <div class="artist_text">{}</div>
-            <div class="album_text">{}</div>
-        </div>
-    </div>
-    <div class="container">
-        <img src={} alt="test" class="image">
-        <div class="overlay">
-            <div class="artist_text">{}</div>
-            <div class="album_text">{}</div>
-        </div>
-    </div>
-    <div class="container">
-        <img src={} alt="test" class="image">
-        <div class="overlay">
-            <div class="artist_text">{}</div>
-            <div class="album_text">{}</div>
-        </div>
-    </div>
-    <div class="container">
-        <img src={} alt="test" class="image">
-        <div class="overlay">
-            <div class="artist_text">{}</div>
-            <div class="album_text">{}</div>
-        </div>
-    </div>
-    <div class="container">
-        <img src={} alt="test" class="image">
-        <div class="overlay">
-            <div class="artist_text">{}</div>
-            <div class="album_text">{}</div>
-        </div>
-    </div>
-    <div class="container">
-        <img src={} alt="test" class="image">
-        <div class="overlay">
-            <div class="artist_text">{}</div>
-            <div class="album_text">{}</div>
-        </div>
-    </div>
-    <div class="container">
-        <img src={} alt="test" class="image">
-        <div class="overlay">
-            <div class="artist_text">{}</div>
-            <div class="album_text">{}</div>
-        </div>
-    </div>
-    <div class="container">
-        <img src={} alt="test" class="image">
-        <div class="overlay">
-            <div class="artist_text">{}</div>
-            <div class="album_text">{}</div>
-        </div>
-    </div>
-    <div class="container">
-        <img src={} alt="test" class="image">
-        <div class="overlay">
-            <div class="artist_text">{}</div>
-            <div class="album_text">{}</div>
-        </div>
-    </div>
-</div>
-</body>
-</html>
-""".format(album_arts[0], artist_names[0], album_names[0],
-           album_arts[1], artist_names[1], album_names[1],
-           album_arts[2], artist_names[2], album_names[2],
-           album_arts[3], artist_names[3], album_names[3],
-           album_arts[4], artist_names[4], album_names[4],
-           album_arts[5], artist_names[5], album_names[5],
-           album_arts[6], artist_names[6], album_names[6],
-           album_arts[7], artist_names[7], album_names[7],
-           album_arts[8], artist_names[8], album_names[8],
-           album_arts[9], artist_names[9], album_names[9],
-           album_arts[10], artist_names[10], album_names[10],
-           album_arts[11], artist_names[11], album_names[11],
-           album_arts[12], artist_names[12], album_names[12],
-           album_arts[13], artist_names[13], album_names[13],
-           album_arts[14], artist_names[14], album_names[14])
-
-f.write(html_string)
-f.close()
-
-webbrowser.open('file://'+os.path.realpath(filename))
+#
+# app = Flask(__name__)
+#
+#
+# @app.route("/")
+# def index():
+#     get_website()
+#     return render_template("spotipy_results.html")
+#
+# if __name__ == "__main__":
+#     app.run(debug=True)
