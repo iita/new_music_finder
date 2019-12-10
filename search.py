@@ -11,7 +11,7 @@ sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
 
 
 def get_artist(q):
-    artist_result = sp.search(q, limit=1, offset=randint(1000, 10000), type='artist', market=None)
+    artist_result = sp.search(q, limit=1, offset=randint(100, 10000), type='artist', market=None)
     artist = {
         "name": artist_result['artists']['items'][0]['name'],
         "id": artist_result['artists']['items'][0]['id'],
@@ -46,6 +46,7 @@ def get_album(album_id):
             "album_name": album_result['name'],
             "album_id": album_result['id'],
             "album_art": album_result['images'][0]['url'],
+            "release_date": album_result['release_date'],
             "album_genres": album_result['genres'],
             "album_link": album_result['external_urls']['spotify'],
             "album_tracks": get_tracks(album_result['id'])
@@ -79,12 +80,16 @@ def get_random_years(start=1950, end=2020):
 
 album_arts = []
 album_names = []
+artist_names = []
+album_dates = []
 
-while len(album_arts) < 8:
+while len(album_arts) < 15:
     album = get_random_album()
     if album is not None:
         album_arts.append(album['album_art'])
         album_names.append(album['album_name'])
+        artist_names.append(album['artist_name'])
+        album_dates.append(album['release_date'])
     else:
         print('no albums')
 
@@ -117,18 +122,30 @@ html_string = """
   width: 100%;
   opacity: 0;
   transition: .2s ease;
-  background-color: #052d2e;
+  background-color: #000000;
 }}
 
 .container:hover .overlay {{
-  opacity: 1;
+  opacity: 0.8;
 }}
 
-.text {{
-  color: white;
+.album_text {{
+  color: #d8dee3;
   font-size: 18px;
   position: absolute;
-  top: 50%;
+  top: 60%;
+  left: 50%;
+  -webkit-transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+  text-align: center;
+}}
+
+.artist_text {{
+  color: #d8dee3;
+  font-size: 22px;
+  position: absolute;
+  top: 20%;
   left: 50%;
   -webkit-transform: translate(-50%, -50%);
   -ms-transform: translate(-50%, -50%);
@@ -138,69 +155,138 @@ html_string = """
 
 .grid {{
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
   grid-gap: 5px;
   align-items: stretch;
   justify-items: center;
   }}
 </style>
 </head>
-<body bgcolor="052d2e">
+<body bgcolor="000000">
 <main class="grid">
     <div class="container">
         <img src={} alt="test" class="image">
         <div class="overlay">
-            <div class="text">{}</div>
+            <div class="artist_text">{}</div>
+            <div class="album_text">{}</div>
         </div>
     </div>
     <div class="container">
         <img src={} alt="test" class="image">
         <div class="overlay">
-            <div class="text">{}</div>
+            <<div class="artist_text">{}</div>
+            <div class="album_text">{}</div>
         </div>
     </div>
     <div class="container">
         <img src={} alt="test" class="image">
         <div class="overlay">
-            <div class="text">{}</div>
+            <div class="artist_text">{}</div>
+            <div class="album_text">{}</div>
         </div>
     </div>
     <div class="container">
         <img src={} alt="test" class="image">
         <div class="overlay">
-            <div class="text">{}</div>
+            <div class="artist_text">{}</div>
+            <div class="album_text">{}</div>
         </div>
     </div>
     <div class="container">
         <img src={} alt="test" class="image">
         <div class="overlay">
-            <div class="text">{}</div>
+            <<div class="artist_text">{}</div>
+            <div class="album_text">{}</div>
         </div>
     </div>
     <div class="container">
         <img src={} alt="test" class="image">
         <div class="overlay">
-            <div class="text">{}</div>
+            <div class="artist_text">{}</div>
+            <div class="album_text">{}</div>
         </div>
     </div>
     <div class="container">
         <img src={} alt="test" class="image">
         <div class="overlay">
-            <div class="text">{}</div>
+            <div class="artist_text">{}</div>
+            <div class="album_text">{}</div>
         </div>
     </div>
     <div class="container">
         <img src={} alt="test" class="image">
         <div class="overlay">
-            <div class="text">{}</div>
+            <div class="artist_text">{}</div>
+            <div class="album_text">{}</div>
+        </div>
+    </div>
+    <div class="container">
+        <img src={} alt="test" class="image">
+        <div class="overlay">
+            <div class="artist_text">{}</div>
+            <div class="album_text">{}</div>
+        </div>
+    </div>
+    <div class="container">
+        <img src={} alt="test" class="image">
+        <div class="overlay">
+            <div class="artist_text">{}</div>
+            <div class="album_text">{}</div>
+        </div>
+    </div>
+    <div class="container">
+        <img src={} alt="test" class="image">
+        <div class="overlay">
+            <div class="artist_text">{}</div>
+            <div class="album_text">{}</div>
+        </div>
+    </div>
+    <div class="container">
+        <img src={} alt="test" class="image">
+        <div class="overlay">
+            <div class="artist_text">{}</div>
+            <div class="album_text">{}</div>
+        </div>
+    </div>
+    <div class="container">
+        <img src={} alt="test" class="image">
+        <div class="overlay">
+            <div class="artist_text">{}</div>
+            <div class="album_text">{}</div>
+        </div>
+    </div>
+    <div class="container">
+        <img src={} alt="test" class="image">
+        <div class="overlay">
+            <div class="artist_text">{}</div>
+            <div class="album_text">{}</div>
+        </div>
+    </div>
+    <div class="container">
+        <img src={} alt="test" class="image">
+        <div class="overlay">
+            <div class="artist_text">{}</div>
+            <div class="album_text">{}</div>
         </div>
     </div>
 </div>
 </body>
 </html>
-""".format(album_arts[0], album_names[0], album_arts[1], album_names[1], album_arts[2], album_names[2],
-           album_arts[3], album_names[3], album_arts[4], album_names[4], album_arts[5], album_names[5],
-           album_arts[6], album_names[6], album_arts[7], album_names[7])
+""".format(album_arts[0], artist_names[0], album_names[0],
+           album_arts[1], artist_names[1], album_names[1],
+           album_arts[2], artist_names[2], album_names[2],
+           album_arts[3], artist_names[3], album_names[3],
+           album_arts[4], artist_names[4], album_names[4],
+           album_arts[5], artist_names[5], album_names[5],
+           album_arts[6], artist_names[6], album_names[6],
+           album_arts[7], artist_names[7], album_names[7],
+           album_arts[8], artist_names[8], album_names[8],
+           album_arts[9], artist_names[9], album_names[9],
+           album_arts[10], artist_names[10], album_names[10],
+           album_arts[11], artist_names[11], album_names[11],
+           album_arts[12], artist_names[12], album_names[12],
+           album_arts[13], artist_names[13], album_names[13],
+           album_arts[14], artist_names[14], album_names[14])
 
 f.write(html_string)
 f.close()
