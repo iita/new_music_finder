@@ -296,8 +296,6 @@ def get_website():
     return html_string
 
 
-get_website()
-
 
 app = Flask(__name__)
 
