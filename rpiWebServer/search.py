@@ -379,10 +379,6 @@ def get_website():
 
 
 sp = get_sp()
-get_website()
-
-
-sp = get_sp()
 app = Flask(__name__)
 
 @app.route("/")
