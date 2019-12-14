@@ -7,9 +7,11 @@ import os
 from flask import Flask, render_template
 
 
-client_credentials_manager = SpotifyClientCredentials()
+def get_sp():
+    client_credentials_manager = SpotifyClientCredentials()
+    sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
+    return sp
 
-sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
 
 
 def get_artist():
@@ -117,6 +119,9 @@ def get_albums(albums):
         }
         albums_list.append(dict)
     return albums_list
+
+
+
 
 
 def get_website():
@@ -332,8 +337,7 @@ def get_website():
     #f.close()
     return html_string
 
-
-
+sp = get_sp()
 app = Flask(__name__)
 
 @app.route("/")
@@ -554,6 +558,7 @@ def index():
 def results():
     content = get_website()
     return content
+
 
 if __name__ == "__main__":
     app.run(debug=True, port=1025, host='0.0.0.0')
