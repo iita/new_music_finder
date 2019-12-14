@@ -144,6 +144,27 @@ def get_albums(genre=None):
     return albums_list
 
 
+def get_artist_genre():
+    artist = get_artist()
+    genre_list = artist['genres']
+    n = len(genre_list)
+    if n == 0:
+        return None
+    elif n == 1:
+        return genre_list[0]
+    else:
+        return genre_list[randint(0, n-1)]
+
+
+def get_genres():
+    genres = []
+    while len(genres) < 10:
+        genre = get_artist_genre()
+        if genre is not None:
+            genres.append(genre)
+    return genres
+
+
 def get_website():
     album_arts = []
     album_names = []
@@ -355,28 +376,6 @@ def get_website():
     #f.write(html_string)
     #f.close()
     return html_string
-
-
-
-def get_artist_genre():
-    artist = get_artist()
-    genre_list = artist['genres']
-    n = len(genre_list)
-    if n == 0:
-        return None
-    elif n == 1:
-        return genre_list[0]
-    else:
-        return genre_list[randint(0, n-1)]
-
-
-def get_genres():
-    genres = []
-    while len(genres) < 10:
-        genre = get_artist_genre()
-        if genre is not None:
-            genres.append(genre)
-    return genres
 
 
 sp = get_sp()
