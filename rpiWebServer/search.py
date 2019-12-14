@@ -7,13 +7,18 @@ import os
 from flask import Flask, render_template
 
 
-client_credentials_manager = SpotifyClientCredentials()
+def get_sp():
+    client_credentials_manager = SpotifyClientCredentials()
+    sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
+    return sp
 
-sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
 
 
-def get_artist(q):
-    artist_result = sp.search(q, limit=1, offset=randint(100, 10000), type='artist', market=None)
+def get_artist():
+    year1, year2 = get_random_years()
+    q = 'year:{}-{}'.format(year1, year2)
+    search_index = randint(100, 10000)
+    artist_result = sp.search(q, limit=1, offset=search_index, type='artist', market=None)
     artist = {
         "name": artist_result['artists']['items'][0]['name'],
         "id": artist_result['artists']['items'][0]['id'],
@@ -56,10 +61,7 @@ def get_album(album_id):
     return albums
 
 
-def get_random_album():
-    year1, year2 = get_random_years(1980,2010)
-    q = 'year:{}-{}'.format(year1, year2)
-    artist = get_artist(q)
+def get_random_album(artist):
     album_ids = get_album_ids(artist['id'])
     n = len(album_ids)
     if n > 1:
@@ -68,7 +70,7 @@ def get_random_album():
         return None
     else:
         random_album = 0
-    album_info = get_album(album_ids[random_album])
+    album_info = album_ids[random_album]
     return album_info
 
 
@@ -80,24 +82,64 @@ def get_random_years(start=1950, end=2020):
     return year1, year2
 
 
+def get_artist_album():
+    artist = get_artist()
+    album_list = get_album_ids(artist['id'])
+    n = len(album_list)
+    if n == 0:
+        return None
+    elif n == 1:
+        return album_list[0]
+    else:
+        return album_list[randint(0, n-1)]
+
+
+def get_lists():
+    albums = []
+    while len(albums) < 15:
+        album = get_artist_album()
+        if album is not None:
+            albums.append(album)
+    return albums
+
+
+def get_albums(albums):
+    album_result = sp.albums(albums)['albums']
+    albums_list = []
+    for album in album_result:
+        dict = {
+            "artist_name": album['artists'][0]['name'],
+            "album_name": album['name'],
+            "album_id": album['id'],
+            "album_art": album['images'][0]['url'],
+            "release_date": album['release_date'],
+            "album_genres": album['genres'],
+            "album_link": album['external_urls']['spotify'],
+            "album_tracks": get_tracks(album['id'])
+        }
+        albums_list.append(dict)
+    return albums_list
+
+
+
+
+
 def get_website():
     album_arts = []
     album_names = []
     artist_names = []
     album_links = []
 
-    while len(album_arts) < 15:
-        album = get_random_album()
-        if album is not None:
-            album_arts.append(album['album_art'])
-            album_names.append(album['album_name'])
-            artist_names.append(album['artist_name'])
-            album_links.append(album['album_link'])
-        else:
-            print('no albums')
+    album_ids = get_lists()
+    albums = get_albums(album_ids)
+    for album in albums:
+        album_arts.append(album['album_art'])
+        album_names.append(album['album_name'])
+        artist_names.append(album['artist_name'])
+        album_links.append(album['album_link'])
 
-   # filename = 'spotipy_results.html'
-   # f = open(filename, 'w')
+    #filename = 'spotipy_results.html'
+    #f = open(filename, 'w')
     html_string = """
     <!DOCTYPE html>
     <html>
@@ -108,13 +150,13 @@ def get_website():
       position: relative;
       width: 100%;
     }}
-    
+
     .image {{
       display: block;
       width: 100%;
       height: auto;
     }}
-    
+
     .overlay {{
       position: absolute;
       top: 0;
@@ -127,11 +169,11 @@ def get_website():
       transition: .2s ease;
       background-color: #000000;
     }}
-    
+
     .container:hover .overlay {{
       opacity: 0.8;
     }}
-    
+
     .album_text {{
       color: #d8dee3;
       font-size: 18px;
@@ -143,7 +185,7 @@ def get_website():
       transform: translate(-50%, -50%);
       text-align: center;
     }}
-    
+
     .artist_text {{
       color: #d8dee3;
       font-size: 22px;
@@ -155,7 +197,7 @@ def get_website():
       transform: translate(-50%, -50%);
       text-align: center;
     }}
-    
+
     .grid {{
       display: grid;
       grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
@@ -291,12 +333,11 @@ def get_website():
                album_links[13], album_arts[13], artist_names[13], album_names[13],
                album_links[14], album_arts[14], artist_names[14], album_names[14])
 
-   # f.write(html_string)
-   # f.close()
+    #f.write(html_string)
+    #f.close()
     return html_string
 
-
-
+sp = get_sp()
 app = Flask(__name__)
 
 @app.route("/")
@@ -471,40 +512,40 @@ def index():
            <body>
 
                 <section id="intro">
-                
+
                   <div id="intro-content" class="center-content">
-                
+
                     <div class="center-content-inner">
-                
+
                       <div class="content-section content-section-margin">
-                
+
                         <div class="content-section-grid clearfix">
-                        
+
                         <a href="/results" class="button nav-link">
-                
+
                           <div class="bottom"></div>
-                
+
                           <div class="top">
-                
+
                           <div class="label">Discover</div>
-                            
+
                                 <div class="button-border button-border-left"></div>
                               <div class="button-border button-border-top"></div>
                               <div class="button-border button-border-right"></div>
                                 <div class="button-border button-border-bottom"></div>
-                
+
                           </div>
-                
+
                             </a>
-                
+
                         </div>
-                
+
                        </div>
-                
+
                       </div>
-                
+
                      </div>
-                
+
                   </section>
             </div>
            </body>
@@ -517,6 +558,7 @@ def index():
 def results():
     content = get_website()
     return content
+
 
 if __name__ == "__main__":
     app.run(debug=True, port=1025, host='0.0.0.0')
