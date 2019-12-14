@@ -47,7 +47,7 @@ def get_artist_from_genre(genre):
     }
     return artist
 
-def get_artist_albums(artist_id):
+def get_album_ids(artist_id):
     album_result = sp.artist_albums(artist_id, album_type='album')
     album_ids = []
     for album in album_result['items']:
@@ -101,9 +101,12 @@ def get_random_years(start=1950, end=2020):
     return year1, year2
 
 
-def get_artist_album():
-    artist = get_artist()
-    album_list = get_artist_albums(artist['id'])
+def get_artist_album(genre=None):
+    if genre is None:
+        artist = get_artist()
+    else:
+        artist = get_artist_from_genre(genre)
+    album_list = get_album_ids(artist['id'])
     n = len(album_list)
     if n == 0:
         return None
@@ -113,16 +116,17 @@ def get_artist_album():
         return album_list[randint(0, n-1)]
 
 
-def get_album_ids():
+def get_album_list(genre=None):
     album_ids = []
     while len(album_ids) < 15:
-        album = get_artist_album()
+        album = get_artist_album(genre)
         if album is not None:
             album_ids.append(album)
     return album_ids
 
 
-def get_albums(album_ids):
+def get_albums(genre=None):
+    album_ids = get_album_list(genre)
     album_result = sp.albums(album_ids)['albums']
     albums_list = []
     for album in album_result:
@@ -146,8 +150,7 @@ def get_website():
     artist_names = []
     album_links = []
 
-    album_ids = get_album_ids()
-    albums = get_albums(album_ids)
+    albums = get_albums('punk')
     for album in albums:
         album_arts.append(album['album_art'])
         album_names.append(album['album_name'])
@@ -355,16 +358,6 @@ def get_website():
 
 
 
-
-def get_genres():
-    genres = []
-    while len(genres) < 10:
-        genre = get_artist_genre()
-        if genre is not None:
-            genres.append(genre)
-    return genres
-
-
 def get_artist_genre():
     artist = get_artist()
     genre_list = artist['genres']
@@ -375,6 +368,16 @@ def get_artist_genre():
         return genre_list[0]
     else:
         return genre_list[randint(0, n-1)]
+
+
+def get_genres():
+    genres = []
+    while len(genres) < 10:
+        genre = get_artist_genre()
+        if genre is not None:
+            genres.append(genre)
+    return genres
+
 
 sp = get_sp()
 get_website()
