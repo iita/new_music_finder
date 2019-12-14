@@ -13,7 +13,6 @@ def get_sp():
     return sp
 
 
-
 def get_artist():
     year1, year2 = get_random_years()
     q = 'year:{}-{}'.format(year1, year2)
@@ -28,7 +27,27 @@ def get_artist():
     return artist
 
 
-def get_album_ids(artist_id):
+def get_artist_from_genre(genre):
+    q = 'genre:"{}"'.format(genre)
+    search_max = 1000
+    search_index = randint(0, search_max)
+    artist_result = sp.search(q, limit=1, offset=search_index, type='artist', market=None)
+    while len(artist_result['artists']['items']) == 0:
+        search_max = search_index
+        search_index = randint(0, search_max)
+        artist_result = sp.search(q, limit=1, offset=search_index, type='artist', market=None)
+        if search_index==0:
+            artist = 'no artists found'
+            return artist
+    artist = {
+        "name": artist_result['artists']['items'][0]['name'],
+        "id": artist_result['artists']['items'][0]['id'],
+        "genres": artist_result['artists']['items'][0]['genres'],
+        "popularity": artist_result['artists']['items'][0]['popularity']
+    }
+    return artist
+
+def get_artist_albums(artist_id):
     album_result = sp.artist_albums(artist_id, album_type='album')
     album_ids = []
     for album in album_result['items']:
@@ -84,7 +103,7 @@ def get_random_years(start=1950, end=2020):
 
 def get_artist_album():
     artist = get_artist()
-    album_list = get_album_ids(artist['id'])
+    album_list = get_artist_albums(artist['id'])
     n = len(album_list)
     if n == 0:
         return None
@@ -94,17 +113,17 @@ def get_artist_album():
         return album_list[randint(0, n-1)]
 
 
-def get_lists():
-    albums = []
-    while len(albums) < 15:
+def get_album_ids():
+    album_ids = []
+    while len(album_ids) < 15:
         album = get_artist_album()
         if album is not None:
-            albums.append(album)
-    return albums
+            album_ids.append(album)
+    return album_ids
 
 
-def get_albums(albums):
-    album_result = sp.albums(albums)['albums']
+def get_albums(album_ids):
+    album_result = sp.albums(album_ids)['albums']
     albums_list = []
     for album in album_result:
         dict = {
@@ -121,16 +140,13 @@ def get_albums(albums):
     return albums_list
 
 
-
-
-
 def get_website():
     album_arts = []
     album_names = []
     artist_names = []
     album_links = []
 
-    album_ids = get_lists()
+    album_ids = get_album_ids()
     albums = get_albums(album_ids)
     for album in albums:
         album_arts.append(album['album_art'])
@@ -138,8 +154,8 @@ def get_website():
         artist_names.append(album['artist_name'])
         album_links.append(album['album_link'])
 
-    #filename = 'spotipy_results.html'
-    #f = open(filename, 'w')
+    filename = 'spotipy_results.html'
+    f = open(filename, 'w')
     html_string = """
     <!DOCTYPE html>
     <html>
@@ -333,232 +349,259 @@ def get_website():
                album_links[13], album_arts[13], artist_names[13], album_names[13],
                album_links[14], album_arts[14], artist_names[14], album_names[14])
 
-    #f.write(html_string)
-    #f.close()
+    f.write(html_string)
+    f.close()
     return html_string
 
+
+
+
+def get_genres():
+    genres = []
+    while len(genres) < 10:
+        genre = get_artist_genre()
+        if genre is not None:
+            genres.append(genre)
+    return genres
+
+
+def get_artist_genre():
+    artist = get_artist()
+    genre_list = artist['genres']
+    n = len(genre_list)
+    if n == 0:
+        return None
+    elif n == 1:
+        return genre_list[0]
+    else:
+        return genre_list[randint(0, n-1)]
+
 sp = get_sp()
-app = Flask(__name__)
+get_website()
 
-@app.route("/")
-def index():
-    content = """
-        <!DOCTYPE html>
-        <html>
-           <head>
-              <title>Try it yourself</title>
-              <style>
-                html {
-                    border: 0;
-                    margin: 0;
-                    padding: 0;
-                    width: 100%;
-                    height: auto;
-                    -webkit-box-sizing: border-box;
-                    -moz-box-sizing: border-box;
-                    box-sizing: border-box;
-                }
-
-                *,*:before,*:after {
-                    -webkit-box-sizing: inherit;
-                    -moz-box-sizing: inherit;
-                    box-sizing: inherit;
-                }
-
-                body {
-                    background-image: url("/static/bg.jpg");
-                    padding: 0;
-                    margin: 0;
-                    height: auto;
-                    width: 100%;
-                }
-
-                b {
-                position: relative;
-                display: block;
-                font-family: helvetica neue, helvetica, sans-serif;
-                line-height: 1.15em;
-                margin-top: -1.15em;
-                top: 2.3em;
-                font-size: 0.67em;
-                font-weight: 400;
-                letter-spacing: 0.025em;
-                opacity: 0.75;
-                text-align: center;
-                }
-
-                b span {
-                font-size: 0.785em;
-                font-weight: 400;
-                opacity: 0.4;
-                }
-
-                #intro {
-                width: 200px;
-                margin: 100px auto 0;
-                }
-
-                .button {
-                    display: inline-block;
-                    text-decoration: none;
-                    position: relative;
-                    margin-top: 80px;
-                }
-
-                .button .bottom {
-                    position: absolute;
-                    left: 7px;
-                    top: 7px;
-                    width: 100%;
-                    height: 100%;
-                    background-color: #a1c2a7;
-                    display: block;
-                    -webkit-transition: all .15s ease-out;
-                    -moz-transition: all .15s ease-out;
-                    -o-transition: all .15s ease-out;
-                    transition: all .15s ease-out;
-                }
-
-                .button .top {
-                    position: relative;
-                    left: 0;
-                    top: 0;
-                    width: 100%;
-                    height: 100%;
-                    padding: 24px 34px 22px 34px;
-                    border: 2px solid #1d3c51;
-                }
-
-                .button-dark .top {
-                    border: 2px solid #f7f7df;
-                }
-
-                .button .top .label {
-                    font-family: sans-serif;
-                    font-weight: 600;
-                    color: #1d3c51;
-                    font-size: 12px;
-                    line-height: 110%;
-                    letter-spacing: 2px;
-                    text-align: center;
-                    text-transform: uppercase;
-                    -webkit-transition: all .15s ease-out;
-                    -moz-transition: all .15s ease-out;
-                    -o-transition: all .15s ease-out;
-                    transition: all .15s ease-out;
-                }
-
-                .button-dark .top .label {
-                    color: #f7f7df;
-                }
-
-                .button:hover .bottom {
-                    left: 0;
-                    top: 0;
-                    opacity: 0.05;
-                    background-color: #f5f6d7;
-                }
-
-                .button:hover .top .label {
-                    color: #59c6c0;
-                }
-
-                .button-border {
-                    position: absolute;
-                    background-color: #59c6c0;
-                    -webkit-transition: all .25s ease-out;
-                    -moz-transition: all .25s ease-out;
-                    -o-transition: all .25s ease-out;
-                    transition: all .25s ease-out;
-                }
-
-                .button:hover .top .button-border-left,.button:hover .top .button-border-right {
-                    height: calc(100% + 2px);
-                }
-
-                .button:hover .top .button-border-top,.button:hover .top .button-border-bottom {
-                    width: calc(100% + 2px);
-                }
-
-                .button-border-left {
-                    left: -2px;
-                    bottom: -2px;
-                    width: 2px;
-                    height: 0;
-                }
-
-                .button-border-top {
-                    left: -2px;
-                    top: -2px;
-                    width: 0;
-                    height: 2px;
-                }
-
-                .button-border-right {
-                    right: -2px;
-                    top: -2px;
-                    width: 2px;
-                    height: 0;
-                }
-
-                .button-border-bottom {
-                    right: -2px;
-                    bottom: -2px;
-                    width: 0;
-                    height: 2px;
-                }
-              </style>
-           </head>
-           <body>
-
-                <section id="intro">
-
-                  <div id="intro-content" class="center-content">
-
-                    <div class="center-content-inner">
-
-                      <div class="content-section content-section-margin">
-
-                        <div class="content-section-grid clearfix">
-
-                        <a href="/results" class="button nav-link">
-
-                          <div class="bottom"></div>
-
-                          <div class="top">
-
-                          <div class="label">Discover</div>
-
-                                <div class="button-border button-border-left"></div>
-                              <div class="button-border button-border-top"></div>
-                              <div class="button-border button-border-right"></div>
-                                <div class="button-border button-border-bottom"></div>
-
-                          </div>
-
-                            </a>
-
-                        </div>
-
-                       </div>
-
-                      </div>
-
-                     </div>
-
-                  </section>
-            </div>
-           </body>
-        </html>
-   """
-    return content
-
-
-@app.route("/results")
-def results():
-    content = get_website()
-    return content
-
-
-if __name__ == "__main__":
-    app.run(debug=True, port=1025, host='0.0.0.0')
+#
+# sp = get_sp()
+# app = Flask(__name__)
+#
+# @app.route("/")
+# def index():
+#     content = """
+#         <!DOCTYPE html>
+#         <html>
+#            <head>
+#               <title>Try it yourself</title>
+#               <style>
+#                 html {
+#                     border: 0;
+#                     margin: 0;
+#                     padding: 0;
+#                     width: 100%;
+#                     height: auto;
+#                     -webkit-box-sizing: border-box;
+#                     -moz-box-sizing: border-box;
+#                     box-sizing: border-box;
+#                 }
+#
+#                 *,*:before,*:after {
+#                     -webkit-box-sizing: inherit;
+#                     -moz-box-sizing: inherit;
+#                     box-sizing: inherit;
+#                 }
+#
+#                 body {
+#                     background-image: url("/static/bg.jpg");
+#                     padding: 0;
+#                     margin: 0;
+#                     height: auto;
+#                     width: 100%;
+#                 }
+#
+#                 b {
+#                 position: relative;
+#                 display: block;
+#                 font-family: helvetica neue, helvetica, sans-serif;
+#                 line-height: 1.15em;
+#                 margin-top: -1.15em;
+#                 top: 2.3em;
+#                 font-size: 0.67em;
+#                 font-weight: 400;
+#                 letter-spacing: 0.025em;
+#                 opacity: 0.75;
+#                 text-align: center;
+#                 }
+#
+#                 b span {
+#                 font-size: 0.785em;
+#                 font-weight: 400;
+#                 opacity: 0.4;
+#                 }
+#
+#                 #intro {
+#                 width: 200px;
+#                 margin: 100px auto 0;
+#                 }
+#
+#                 .button {
+#                     display: inline-block;
+#                     text-decoration: none;
+#                     position: relative;
+#                     margin-top: 80px;
+#                 }
+#
+#                 .button .bottom {
+#                     position: absolute;
+#                     left: 7px;
+#                     top: 7px;
+#                     width: 100%;
+#                     height: 100%;
+#                     background-color: #a1c2a7;
+#                     display: block;
+#                     -webkit-transition: all .15s ease-out;
+#                     -moz-transition: all .15s ease-out;
+#                     -o-transition: all .15s ease-out;
+#                     transition: all .15s ease-out;
+#                 }
+#
+#                 .button .top {
+#                     position: relative;
+#                     left: 0;
+#                     top: 0;
+#                     width: 100%;
+#                     height: 100%;
+#                     padding: 24px 34px 22px 34px;
+#                     border: 2px solid #1d3c51;
+#                 }
+#
+#                 .button-dark .top {
+#                     border: 2px solid #f7f7df;
+#                 }
+#
+#                 .button .top .label {
+#                     font-family: sans-serif;
+#                     font-weight: 600;
+#                     color: #1d3c51;
+#                     font-size: 12px;
+#                     line-height: 110%;
+#                     letter-spacing: 2px;
+#                     text-align: center;
+#                     text-transform: uppercase;
+#                     -webkit-transition: all .15s ease-out;
+#                     -moz-transition: all .15s ease-out;
+#                     -o-transition: all .15s ease-out;
+#                     transition: all .15s ease-out;
+#                 }
+#
+#                 .button-dark .top .label {
+#                     color: #f7f7df;
+#                 }
+#
+#                 .button:hover .bottom {
+#                     left: 0;
+#                     top: 0;
+#                     opacity: 0.05;
+#                     background-color: #f5f6d7;
+#                 }
+#
+#                 .button:hover .top .label {
+#                     color: #59c6c0;
+#                 }
+#
+#                 .button-border {
+#                     position: absolute;
+#                     background-color: #59c6c0;
+#                     -webkit-transition: all .25s ease-out;
+#                     -moz-transition: all .25s ease-out;
+#                     -o-transition: all .25s ease-out;
+#                     transition: all .25s ease-out;
+#                 }
+#
+#                 .button:hover .top .button-border-left,.button:hover .top .button-border-right {
+#                     height: calc(100% + 2px);
+#                 }
+#
+#                 .button:hover .top .button-border-top,.button:hover .top .button-border-bottom {
+#                     width: calc(100% + 2px);
+#                 }
+#
+#                 .button-border-left {
+#                     left: -2px;
+#                     bottom: -2px;
+#                     width: 2px;
+#                     height: 0;
+#                 }
+#
+#                 .button-border-top {
+#                     left: -2px;
+#                     top: -2px;
+#                     width: 0;
+#                     height: 2px;
+#                 }
+#
+#                 .button-border-right {
+#                     right: -2px;
+#                     top: -2px;
+#                     width: 2px;
+#                     height: 0;
+#                 }
+#
+#                 .button-border-bottom {
+#                     right: -2px;
+#                     bottom: -2px;
+#                     width: 0;
+#                     height: 2px;
+#                 }
+#               </style>
+#            </head>
+#            <body>
+#
+#                 <section id="intro">
+#
+#                   <div id="intro-content" class="center-content">
+#
+#                     <div class="center-content-inner">
+#
+#                       <div class="content-section content-section-margin">
+#
+#                         <div class="content-section-grid clearfix">
+#
+#                         <a href="/results" class="button nav-link">
+#
+#                           <div class="bottom"></div>
+#
+#                           <div class="top">
+#
+#                           <div class="label">Discover</div>
+#
+#                                 <div class="button-border button-border-left"></div>
+#                               <div class="button-border button-border-top"></div>
+#                               <div class="button-border button-border-right"></div>
+#                                 <div class="button-border button-border-bottom"></div>
+#
+#                           </div>
+#
+#                             </a>
+#
+#                         </div>
+#
+#                        </div>
+#
+#                       </div>
+#
+#                      </div>
+#
+#                   </section>
+#             </div>
+#            </body>
+#         </html>
+#    """
+#     return content
+#
+#
+# @app.route("/results")
+# def results():
+#     content = get_website()
+#     return content
+#
+#
+# if __name__ == "__main__":
+#     app.run(debug=True, port=1025, host='0.0.0.0')
