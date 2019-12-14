@@ -13,7 +13,6 @@ def get_sp():
     return sp
 
 
-
 def get_artist():
     year1, year2 = get_random_years()
     q = 'year:{}-{}'.format(year1, year2)
@@ -27,6 +26,26 @@ def get_artist():
     }
     return artist
 
+
+def get_artist_from_genre(genre):
+    q = 'genre:"{}"'.format(genre)
+    search_max = 1000
+    search_index = randint(0, search_max)
+    artist_result = sp.search(q, limit=1, offset=search_index, type='artist', market=None)
+    while len(artist_result['artists']['items']) == 0:
+        search_max = search_index
+        search_index = randint(0, search_max)
+        artist_result = sp.search(q, limit=1, offset=search_index, type='artist', market=None)
+        if search_index==0:
+            artist = 'no artists found'
+            return artist
+    artist = {
+        "name": artist_result['artists']['items'][0]['name'],
+        "id": artist_result['artists']['items'][0]['id'],
+        "genres": artist_result['artists']['items'][0]['genres'],
+        "popularity": artist_result['artists']['items'][0]['popularity']
+    }
+    return artist
 
 def get_album_ids(artist_id):
     album_result = sp.artist_albums(artist_id, album_type='album')
@@ -82,8 +101,11 @@ def get_random_years(start=1950, end=2020):
     return year1, year2
 
 
-def get_artist_album():
-    artist = get_artist()
+def get_artist_album(genre=None):
+    if genre is None:
+        artist = get_artist()
+    else:
+        artist = get_artist_from_genre(genre)
     album_list = get_album_ids(artist['id'])
     n = len(album_list)
     if n == 0:
@@ -94,17 +116,18 @@ def get_artist_album():
         return album_list[randint(0, n-1)]
 
 
-def get_lists():
-    albums = []
-    while len(albums) < 15:
-        album = get_artist_album()
+def get_album_list(genre=None):
+    album_ids = []
+    while len(album_ids) < 15:
+        album = get_artist_album(genre)
         if album is not None:
-            albums.append(album)
-    return albums
+            album_ids.append(album)
+    return album_ids
 
 
-def get_albums(albums):
-    album_result = sp.albums(albums)['albums']
+def get_albums(genre=None):
+    album_ids = get_album_list(genre)
+    album_result = sp.albums(album_ids)['albums']
     albums_list = []
     for album in album_result:
         dict = {
@@ -121,7 +144,25 @@ def get_albums(albums):
     return albums_list
 
 
+def get_artist_genre():
+    artist = get_artist()
+    genre_list = artist['genres']
+    n = len(genre_list)
+    if n == 0:
+        return None
+    elif n == 1:
+        return genre_list[0]
+    else:
+        return genre_list[randint(0, n-1)]
 
+
+def get_genres():
+    genres = []
+    while len(genres) < 10:
+        genre = get_artist_genre()
+        if genre is not None:
+            genres.append(genre)
+    return genres
 
 
 def get_website():
@@ -130,16 +171,13 @@ def get_website():
     artist_names = []
     album_links = []
 
-    album_ids = get_lists()
-    albums = get_albums(album_ids)
+    albums = get_albums('punk')
     for album in albums:
         album_arts.append(album['album_art'])
         album_names.append(album['album_name'])
         artist_names.append(album['artist_name'])
         album_links.append(album['album_link'])
 
-    #filename = 'spotipy_results.html'
-    #f = open(filename, 'w')
     html_string = """
     <!DOCTYPE html>
     <html>
@@ -333,9 +371,12 @@ def get_website():
                album_links[13], album_arts[13], artist_names[13], album_names[13],
                album_links[14], album_arts[14], artist_names[14], album_names[14])
 
+    #filename = 'spotipy_results.html'
+    #f = open(filename, 'w')
     #f.write(html_string)
     #f.close()
     return html_string
+
 
 sp = get_sp()
 app = Flask(__name__)
