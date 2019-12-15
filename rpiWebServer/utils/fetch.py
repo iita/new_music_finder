@@ -50,7 +50,8 @@ def get_album_ids(artist_id):
     album_result = sp.artist_albums(artist_id, album_type='album')
     album_ids = []
     for album in album_result['items']:
-        album_ids.append(album['id'])
+        if len(album['images'])!=0:
+            album_ids.append(album['id'])
     return album_ids
 
 
@@ -255,7 +256,7 @@ def get_genre_html():
                         top: 0;
                         width: 100%;
                         height: 100%;
-                        padding: 24px 34px 22px 34px;
+                        padding: 20px 24px 18px 24px;
                         border: 2px solid #1d3c51;
                     }}
 
@@ -265,10 +266,10 @@ def get_genre_html():
 
                     .button .top .label {{
                         font-family: sans-serif;
-                        font-weight: 600;
+                        font-weight: 800;
                         color: #1d3c51;
                         font-size: 12px;
-                        line-height: 110%;
+                        line-height: 140%;
                         letter-spacing: 2px;
                         text-align: center;
                         text-transform: uppercase;
@@ -350,7 +351,7 @@ def get_genre_html():
                     border-radius:0.2em;
                     box-sizing: border-box;
                     text-decoration:none;
-                    font-family:'Roboto',sans-serif;
+                    font-family:sans-serif;
                     font-weight:600;
                     font-size: medium;
                     color:#296965;
@@ -381,6 +382,21 @@ def get_genre_html():
                     30%{{top:0em}}
                     50%{{top:0em;}}
                 }}
+                input {{
+                width: fit-content;
+                text-align: center;
+                font-family: sans-serif;
+                font-weight: 600;
+                margin-top: 100px;
+                color:#296965;
+                background-color: #f6f5d7;
+                border: none;
+                border-bottom:1px solid;
+                border-color:#296965 ;
+                outline: none;
+                box-shadow: none;
+                opacity: 0.8;
+            }}
                   </style>
                </head>
                <body>
@@ -401,7 +417,7 @@ def get_genre_html():
 
                               <div class="top">
 
-                              <div class="label">True Random</div>
+                              <div class="label">Go Outside Your Comfort Zone</div>
 
                                     <div class="button-border button-border-left"></div>
                                   <div class="button-border button-border-top"></div>
@@ -436,6 +452,9 @@ def get_genre_html():
                         <a href="/genre/{10}" class="button1 bouncy" style="animation-delay:2.1s;color:#535948">{10}</a>
                         <a href="/genre/{11}" class="button1 bouncy" style="animation-delay:2.7s">{11}</a>
                     </div>
+                    <form style="text-align: center;"">
+                        <input type="text" name="genre" class="input" style="display:inline-block" placeholder="Or input genre:">
+                    </form>
                </body>
             </html>
        """.format(genres[0], genres[1], genres[2], genres[3],

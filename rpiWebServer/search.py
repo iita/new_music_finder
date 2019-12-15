@@ -1,18 +1,22 @@
-import requests
 import webbrowser
 import os
-from flask import Flask, render_template
+from flask import Flask, request
 
 import utils.fetch as fetch
 
 
-
 app = Flask(__name__)
 
+
 @app.route("/")
-def index():
-    content = fetch.get_genre_html()
+def input_genre():
+    if 'genre' in request.args:
+        name = request.args['genre']
+        content = fetch.get_website(name)
+    else:
+        content = fetch.get_genre_html()
     return content
+
 
 @app.route("/genre/<name>")
 def genre(name):
