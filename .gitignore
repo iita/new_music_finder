@@ -2,4 +2,4 @@
 */nohup.out
 /.idea
 *.html
-utils/__pycache__/*
+*.pyc
