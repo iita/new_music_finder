@@ -34,7 +34,7 @@ def get_artist_from_genre(genre):
         search_max = search_index
         search_index = randint(0, search_max)
         artist_result = sp.search(q, limit=1, offset=search_index, type='artist', market=None)
-        if search_index==0:
+        if search_index == 0:
             artist = 'no artists found'
             return artist
     artist = {
@@ -82,19 +82,6 @@ def get_album(album_id):
     return albums
 
 
-def get_random_album(artist):
-    album_ids = get_album_ids(artist['id'])
-    n = len(album_ids)
-    if n > 1:
-        random_album = randint(0, n-1)
-    elif n == 0:
-        return None
-    else:
-        random_album = 0
-    album_info = album_ids[random_album]
-    return album_info
-
-
 def get_random_years(start=1950, end=2020):
     year1 = randint(start, end)
     year2 = year1+5
@@ -108,7 +95,11 @@ def get_artist_album(genre=None):
         artist = get_artist()
     else:
         artist = get_artist_from_genre(genre)
+    if artist == 'no artists found':
+        return 'NOPE'
     album_list = get_album_ids(artist['id'])
+    if album_list == 'NOPE':
+        return 'NOPE'
     n = len(album_list)
     if n == 0:
         return None
@@ -122,7 +113,9 @@ def get_album_list(genre=None):
     album_ids = []
     while len(album_ids) < 15:
         album = get_artist_album(genre)
-        if album is not None:
+        if album == 'NOPE':
+            return album
+        elif album is not None:
             album_ids.append(album)
     return album_ids
 
@@ -130,6 +123,8 @@ def get_album_list(genre=None):
 def get_albums(genre=None):
     sp = get_sp()
     album_ids = get_album_list(genre)
+    if album_ids == 'NOPE':
+        return 'NOPE'
     album_result = sp.albums(album_ids)['albums']
     albums_list = []
     for album in album_result:
@@ -169,8 +164,16 @@ def get_genres():
     return genres
 
 
-def get_genre_html():
+def get_genre_html(error=False, fail=None):
     genres = get_genres()
+    if error is True:
+        background = 'error'
+        message = 'Nothing found for "'+fail+'" - try something new instead?'
+        query = 'Or try again:'
+    else:
+        background = 'bg'
+        message = 'Go Outside Your Comfort Zone'
+        query = 'Or input genre:'
 
     html_string = """
                 <!DOCTYPE html>
@@ -196,7 +199,7 @@ def get_genre_html():
                     }}
 
                     body {{
-                        background-image: url("/static/bg.jpg");
+                        background-image: url("/static/{12}.jpg");
                         padding: 0;
                         margin: 0;
                         height: auto;
@@ -417,7 +420,7 @@ def get_genre_html():
 
                               <div class="top">
 
-                              <div class="label">Go Outside Your Comfort Zone</div>
+                              <div class="label">{13}</div>
 
                                     <div class="button-border button-border-left"></div>
                                   <div class="button-border button-border-top"></div>
@@ -453,13 +456,13 @@ def get_genre_html():
                         <a href="/genre/{11}" class="button1 bouncy" style="animation-delay:2.7s">{11}</a>
                     </div>
                     <form style="text-align: center;"">
-                        <input type="text" name="genre" class="input" style="display:inline-block" placeholder="Or input genre:">
+                        <input type="text" name="genre" class="input" style="display:inline-block" placeholder="{14}">
                     </form>
                </body>
             </html>
        """.format(genres[0], genres[1], genres[2], genres[3],
                   genres[4], genres[5], genres[6], genres[7], genres[8],
-                  genres[9], genres[10], genres[11])
+                  genres[9], genres[10], genres[11], background, message, query)
     return html_string
 
 
@@ -470,6 +473,9 @@ def get_website(genre=None):
     album_links = []
 
     albums = get_albums(genre)
+    if albums == 'NOPE':
+        html_string = get_genre_html(True, genre)
+        return html_string
     for album in albums:
         album_arts.append(album['album_art'])
         album_names.append(album['album_name'])
