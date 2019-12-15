@@ -2,3 +2,4 @@
 */nohup.out
 /.idea
 *.html
+/__pycache__
