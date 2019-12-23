@@ -1,11 +1,11 @@
 import webbrowser
 import os
-from flask import Flask, request
-
+from quart import Quart, request
+import asyncio
 import utils.fetch as fetch
 
 
-app = Flask(__name__)
+app = Quart(__name__)
 
 
 @app.route("/")
@@ -16,7 +16,6 @@ def input_genre():
     else:
         content = fetch.get_genre_html()
     return content
-
 
 @app.route("/genre/<name>")
 def genre(name):
@@ -31,4 +30,4 @@ def results():
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=1025, host='0.0.0.0')
+    app.run(host='0.0.0.0')

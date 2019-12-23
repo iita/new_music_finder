@@ -1,20 +1,21 @@
-import spotipy
+import aiospotipy
+import asyncio
 from spotipy.oauth2 import SpotifyClientCredentials
 from random import randint
 
 
 def get_sp():
     client_credentials_manager = SpotifyClientCredentials()
-    sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
+    sp = aiospotipy.Spotify(client_credentials_manager=client_credentials_manager)
     return sp
 
 
-def get_artist():
+async def get_artist():
     sp = get_sp()
     year1, year2 = get_random_years()
     q = 'year:{}-{}'.format(year1, year2)
     search_index = randint(100, 10000)
-    artist_result = sp.search(q, limit=1, offset=search_index, type='artist', market=None)
+    artist_result = await sp.search_artist(q, limit=1, offset=search_index, market=None)
     artist = {
         "name": artist_result['artists']['items'][0]['name'],
         "id": artist_result['artists']['items'][0]['id'],
@@ -22,7 +23,6 @@ def get_artist():
         "popularity": artist_result['artists']['items'][0]['popularity']
     }
     return artist
-
 
 def get_artist_from_genre(genre):
     sp = get_sp()
@@ -44,6 +44,7 @@ def get_artist_from_genre(genre):
         "popularity": artist_result['artists']['items'][0]['popularity']
     }
     return artist
+
 
 def get_album_ids(artist_id):
     sp = get_sp()
@@ -142,8 +143,8 @@ def get_albums(genre=None):
     return albums_list
 
 
-def get_artist_genre():
-    artist = get_artist()
+async def get_artist_genre():
+    artist = await get_artist()
     genre_list = artist['genres']
     n = len(genre_list)
     if n == 0:
@@ -154,18 +155,35 @@ def get_artist_genre():
         return genre_list[randint(0, n-1)]
 
 
-def get_genres():
-    genres = []
-    while len(genres) < 12:
-        genre = get_artist_genre()
-        if genre is not None:
-            if genre not in genres:
-                genres.append(genre)
+async def get_one_genre():
+    genre = await get_artist_genre()
+    while genre is None:
+        genre = await get_artist_genre()
+    return genre
+
+
+async def get_genres():
+    genres = await asyncio.gather(
+        get_one_genre(),
+        get_one_genre(),
+        get_one_genre(),
+        get_one_genre(),
+        get_one_genre(),
+        get_one_genre(),
+        get_one_genre(),
+        get_one_genre(),
+        get_one_genre(),
+        get_one_genre(),
+        get_one_genre(),
+        get_one_genre()
+    )
     return genres
 
+artist = asyncio.run(get_artist())
+print(artist)
 
-def get_genre_html(error=False, fail=None):
-    genres = get_genres()
+async def get_genre_html(error=False, fail=None):
+    genres = await get_genres()
     if error is True:
         background = 'error'
         message = 'Nothing found for "'+fail+'" - try something new instead?'
