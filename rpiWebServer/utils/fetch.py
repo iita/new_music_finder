@@ -13,13 +13,20 @@ def get_artist():
     sp = get_sp()
     year1, year2 = get_random_years()
     q = 'year:{}-{}'.format(year1, year2)
-    search_index = randint(100, 10000)
+    search_index = randint(0, 2000)
     artist_result = sp.search(q, limit=1, offset=search_index, type='artist', market=None)
+    artists = artist_result['artists']['items']
+    print(artists)
+    if artist_result['artists']['next']:
+        artist_result = sp.next(artist_result['artists'])
+        artists.extend(artist_result['artists']['items'])
+    n_artists = len(artists)
+    n = randint(0, n_artists)
     artist = {
-        "name": artist_result['artists']['items'][0]['name'],
-        "id": artist_result['artists']['items'][0]['id'],
-        "genres": artist_result['artists']['items'][0]['genres'],
-        "popularity": artist_result['artists']['items'][0]['popularity']
+        "name": artists[n]['name'],
+        "id": artists[n]['id'],
+        "genres": artists[n]['genres'],
+        "popularity": artists[n]['popularity']
     }
     return artist
 
@@ -27,7 +34,7 @@ def get_artist():
 def get_artist_from_genre(genre):
     sp = get_sp()
     q = 'genre:"{}"'.format(genre)
-    search_max = 1000
+    search_max = 2000
     search_index = randint(0, search_max)
     artist_result = sp.search(q, limit=1, offset=search_index, type='artist', market=None)
     while len(artist_result['artists']['items']) == 0:
